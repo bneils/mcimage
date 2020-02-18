@@ -27,7 +27,7 @@ def pil2mcfunction(image):
 	pixel_indices = list(image.getdata())
 
 	return f'gamerule maxCommandChainLength {len(pixel_indices) + 2}\n' + \
-	    ''.join( f'setblock ~{-c} ~{r} ~ {blocks[impal2colpal[pixel_indices[r * image.width + c]]]}\n'
+	    ''.join( f'setblock ~{-c} ~{image.height - r - 1} ~ {blocks[impal2colpal[pixel_indices[r * image.width + c]]]}\n'
 		for c in range(image.width) for r in range(image.height) ) + 'gamerule maxCommandChainLength 65536'
 	
 # Driver
