@@ -52,8 +52,6 @@ if __name__ == "__main__":
 			print("Aborted.")
 			quit()
 
-		args.progress_bar = True
-
 	# Write the file
 	with open(args.dest, 'w') as f:
 		f.write(pil2mcfunction(im))
