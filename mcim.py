@@ -91,7 +91,7 @@ colors = array(((4299.93, 80.91, 581.41), (4824.02, 2494.01, 3167.29), (5644.15,
 blocks = ('acacia_log', 'acacia_planks', 'andesite', 'barrel', 'bedrock', 'birch_log', 'birch_log[axis=z]', 'birch_planks', 'black_concrete', 'black_concrete_powder', 'black_glazed_terracotta', 'black_terracotta', 'black_wool', 'blast_furnace', 'blast_furnace[facing=east]', 'blue_concrete', 'blue_concrete_powder', 'blue_glazed_terracotta', 'blue_ice', 'blue_terracotta', 'blue_wool', 'bone_block', 'bookshelf', 'bricks', 'brown_concrete', 'brown_concrete_powder', 'brown_glazed_terracotta', 'brown_mushroom_block', 'brown_terracotta', 'brown_wool', 'carved_pumpkin', 'chiseled_quartz_block', 'chiseled_red_sandstone', 'chiseled_sandstone', 'chiseled_stone_bricks', 'clay', 'coal_block', 'coal_ore', 'coarse_dirt', 'cobblestone', 'composter', 'cracked_stone_bricks', 'crafting_table', 'cut_red_sandstone', 'cut_sandstone', 'cyan_concrete', 'cyan_concrete_powder', 'cyan_glazed_terracotta', 'cyan_terracotta', 'cyan_wool', 'dark_oak_log', 'dark_oak_log[axis=z]', 'dark_oak_planks', 'dark_prismarine', 'dead_brain_coral_block', 'dead_bubble_coral_block', 'dead_fire_coral_block', 'dead_horn_coral_block', 'dead_tube_coral_block', 'diamond_block', 'diamond_ore', 'diorite', 'dirt', 'dispenser', 'dried_kelp_block', 'dropper', 'emerald_block', 'emerald_ore', 'end_stone', 'end_stone_bricks', 'fletching_table', 'furnace', 'furnace[facing=south]', 'glowstone', 'gold_block', 'gold_ore', 'granite', 'gravel', 'gray_concrete', 'gray_concrete_powder', 'gray_glazed_terracotta', 'gray_terracotta', 'gray_wool', 'green_concrete', 'green_concrete_powder', 'green_glazed_terracotta', 'green_terracotta', 'green_wool', 'hay_block', 'honeycomb_block', 'iron_block', 'iron_ore', 'jack_o_lantern', 'jigsaw', 'jigsaw[facing=north]', 'jukebox', 'jungle_log', 'jungle_log[axis=z]', 'jungle_planks', 'lapis_block', 'lapis_ore', 'light_blue_concrete', 'light_blue_concrete_powder', 'light_blue_glazed_terracotta', 'light_blue_terracotta', 'light_blue_wool', 'light_gray_concrete', 'light_gray_concrete_powder', 'light_gray_glazed_terracotta', 'light_gray_terracotta', 'light_gray_wool', 'lime_concrete', 'lime_concrete_powder', 'lime_glazed_terracotta', 'lime_terracotta', 'lime_wool', 'loom', 'loom[facing=south]', 'magenta_concrete', 'magenta_concrete_powder', 'magenta_glazed_terracotta', 'magenta_terracotta', 'magenta_wool', 'magma_block', 'melon', 'mossy_cobblestone', 'mossy_stone_bricks', 'mushroom_stem', 'netherrack', 'nether_bricks', 'nether_quartz_ore', 'nether_wart_block', 'note_block', 'oak_log', 'oak_log[axis=z]', 'oak_planks', 'observer', 'observer[facing=east]', 'observer[facing=south]', 'observer[facing=up]', 'obsidian', 'orange_concrete', 'orange_concrete_powder', 'orange_glazed_terracotta', 'orange_terracotta', 'orange_wool', 'packed_ice', 'pink_concrete', 'pink_concrete_powder', 'pink_glazed_terracotta', 'pink_terracotta', 'pink_wool', 'polished_andesite', 'polished_diorite', 'polished_granite', 'prismarine', 'prismarine_bricks', 'pumpkin', 'purple_concrete', 'purple_concrete_powder', 'purple_glazed_terracotta', 'purple_terracotta', 'purple_wool', 'purpur_block', 'purpur_pillar', 'quartz_block', 'quartz_pillar', 'redstone_block', 'redstone_ore', 'red_concrete', 'red_concrete_powder', 'red_glazed_terracotta', 'red_mushroom_block', 'red_nether_bricks', 'red_sand', 'red_sandstone', 'red_terracotta', 'red_wool', 'sand', 'sandstone', 'sea_lantern', 'smithing_table', 'smoker', 'smoker[facing=east]', 'smooth_stone', 'smooth_stone_slab[type=double]', 'snow_block', 'soul_sand', 'sponge', 'spruce_log', 'spruce_log[axis=z]', 'spruce_planks', 'stone', 'stone_bricks', 'stripped_acacia_log', 'stripped_acacia_log[axis=z]', 'stripped_birch_log', 'stripped_birch_log[axis=z]', 'stripped_dark_oak_log', 'stripped_dark_oak_log[axis=z]', 'stripped_jungle_log', 'stripped_jungle_log[axis=z]', 'stripped_oak_log', 'stripped_oak_log[axis=z]', 'stripped_spruce_log', 'stripped_spruce_log[axis=z]', 'terracotta', 'wet_sponge', 'white_concrete', 'white_concrete_powder', 'white_glazed_terracotta', 'white_terracotta', 'white_wool', 'yellow_concrete', 'yellow_concrete_powder', 'yellow_glazed_terracotta', 'yellow_terracotta', 'yellow_wool')
 
 
-def pil2mcfunction(image, directions=NORTH):
+def pil2mcfunction(image, directions=NORTH, fill_compression=False):
 	"""Returns the Minecraft representation of an image as a *.mcfunction.
 	   Output is executable within a data-pack in-game. """
 	
@@ -99,6 +99,11 @@ def pil2mcfunction(image, directions=NORTH):
 	
 	if type(directions) == int:
 		directions = (directions,)
+	else:
+		assert len(directions) <= 2, "Too many directions specified"
+		
+	directions = list(sorted(directions))
+	format_func, format_str = format_map[directions[0]][directions[1] if len(directions) == 2 else None]
 	
 	# Find the closest color to colors in the image's palette to block colors
 	impal2colpal = [argmin(delta_e(array(convert_color(sRGBColor(*rgb), LabColor).get_value_tuple()),
@@ -108,49 +113,57 @@ def pil2mcfunction(image, directions=NORTH):
 	# Generate *.mcfunction file by using the palette
 	pixel_indices = list(image.getdata())
 
-	format_func, format_str = format_map[directions[0]][directions[1] if len(directions) == 2 else None]
-	
 	# Use run-length encoding
-	func_body = []
-	for r in range(image.height):
-		streak_block = last_pos = None
-		streak = False
-		for c in range(image.width):
-			# Retrieve the current color index, and find what block its color is closest to
-			block = blocks[impal2colpal[pixel_indices[r * image.width + c]]]
-			
-			# Retrieve where to place the block
-			pos = format_str.format(*format_func(c, r, image.height))
-			
-			# See if the streak continues or breaks
-			if streak_block != block:
-				# Determine how to place the block
-				if streak:
-					func_body.append(f'fill {block_pos} {last_pos} {streak_block}')
-				elif last_pos:
-					func_body.append(f'setblock {last_pos} {streak_block}')
-				else:
-					# First element in sequence
-					func_body.append(f'setblock {pos} {block}')
-	
-				# Reset streak and blocks
-				streak = False
-				block_pos = last_pos = pos
-				streak_block = block
-			else:
-				streak = True
-				last_pos = pos
+	if fill_compression:
+		## Sacrifices a little speed for space
+		func_body = []
+		for r in range(image.height):
+			streak_block = last_pos = None
+			streak = False
+			for c in range(image.width):
+				# Retrieve the current color index, and find what block its color is closest to
+				block = blocks[impal2colpal[pixel_indices[r * image.width + c]]]
+				
+				# Retrieve where to place the block
+				pos = format_str.format(*format_func(c, r, image.height))
+				
+				# See if the streak continues or breaks
+				if streak_block != block:
+					# Determine how to place the block
+					if streak:
+						func_body.append(f'fill {block_pos} {last_pos} {streak_block}')
+					elif last_pos:
+						func_body.append(f'setblock {last_pos} {streak_block}')
+					else:
+						# First element in sequence
+						func_body.append(f'setblock {pos} {block}')
 		
-		# If a streak persists past the loop
-		if streak:
-			func_body.append(f'fill {block_pos} {pos} {block}')
-		# If there wasn't a streak, but just a block waiting for a streak to occur
-		elif last_pos == block_pos:
-			func_body.append(f'setblock {last_pos} {block}')
-	
-	return f'gamerule maxCommandChainLength {len(func_body) + 3}\n' + \
-			'tellraw @a "Pending extreme lag..."\n' + '\n'.join(func_body) + '\ngamerule maxCommandChainLength 65536'
+					# Reset streak and blocks
+					streak = False
+					block_pos = last_pos = pos
+					streak_block = block
+				else:
+					streak = True
+					last_pos = pos
 			
+			# If a streak persists past the loop
+			if streak:
+				func_body.append(f'fill {block_pos} {pos} {block}')
+			# If there wasn't a streak, but just a block waiting for a streak to occur
+			elif last_pos == block_pos:
+				func_body.append(f'setblock {last_pos} {block}')
+		
+		return f'gamerule maxCommandChainLength {len(func_body) + 10}\n' + \
+				'tellraw @a "Pending extreme lag..."\n' + '\n'.join(func_body) + '\ngamerule maxCommandChainLength 65536'
+	
+	else:
+		format_str = "setblock " + format_str + " {2}\n"
+		
+		# If the programmer doesn't want compression due to the fill command messing up the build (default)
+		return f'gamerule maxCommandChainLength {len(pixel_indices) + 10}\ntellraw @a "Pending extreme lag..."\n' + \
+			''.join([format_str.format(*format_func(c, r, image.height), blocks[impal2colpal[pixel_indices[r * image.width + c]]])
+			for c in range(image.width) for r in range(image.height)]) + 'gamerule maxCommandChainLength 65536'
+	
 # Driver
 if __name__ == "__main__":
 	# Argument parsing
@@ -160,11 +173,12 @@ if __name__ == "__main__":
 	parser.add_argument('-s', '--scale', metavar='N', default=1.0, type=float, help='a decimal to appropriately scale an image')
 	parser.add_argument('-q', '--suppress', action='store_true', help="won't annoy users about large images")
 	parser.add_argument('-o', '--orientation', metavar='D', default='N', help="specify in what direction to make the image (e.g. N+U). Allowed: N, E, S, W, U, D")
+	parser.add_argument('-c', '--compress', action='store_true', help="compress the image into fill commands (problematic for large images, due to unloaded chunks)")
 	
 	args = parser.parse_args()
 	
 	directions_alias = {'N':NORTH, 'S':SOUTH, 'E':EAST, 'W':WEST, 'U':UP, 'D':DOWN}
-	directions = [directions_alias[c] for c in args.orientation.upper().split('+')]
+	directions = [directions_alias[c] for c in args.orientation.upper()]
 	assert len(directions) <= 2, "Too many directions specified."
 	
 	# Convert to an indexed image (w/ palette)
@@ -177,7 +191,7 @@ if __name__ == "__main__":
 			print("Aborted.")
 			quit()
 	
-	result = pil2mcfunction(im, directions)
+	result = pil2mcfunction(im, directions, args.compress)
 	
 	# Write the file
 	with open(args.dest, 'w') as f:
