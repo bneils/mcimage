@@ -19,3 +19,6 @@ Optional arguments include --dest, --scale, --suppress, --orientation, and --com
 * [x] Scar artifacts may appear in behemoth (horizontal) images due to chunks not loading in Minecraft. This can be fixed however, by not using the compression feature.
 * [x] Minecraft has a bug in it where after reloading, it won't set the `maxCommandChainLength` (how many commands can run in a single function) and you have to run it twice for it to work.
 * [x] Won't place a platform for falling blocks to rest on, so don't try making a floating image! (Might be patched later)
+
+Here is a generated example:
+![Example](example.png)
