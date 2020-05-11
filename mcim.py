@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from colormath.color_diff_matrix import delta_e_cie1976 as delta_e
 from colormath.color_objects import LabColor, sRGBColor
 from colormath.color_conversions import convert_color
